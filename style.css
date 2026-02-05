@@ -44,6 +44,14 @@ a {
   color: rgb(0, 174, 176);
 }
 
+#subscribe:hover {
+  color: red;
+}
+
+.nav-li a:hover {
+  color: green;
+}
+
 #name {
   text-align: center;
 }
@@ -62,12 +70,11 @@ main {
 }
 
 .sidebar-img {
-  max-width: 500px;
-  max-height: 500px;
-  margin-top: 62.5px;
+  width: 400px;
+  max-height: 250px;
+  margin-top: 20px;
   margin-left: 10px;
   border-radius: 50px;
-  
 }
 
 .content {
@@ -87,7 +94,8 @@ main {
   text-align: center;
 }
 
-h2, h3 {
+h2,
+h3 {
   margin: 0px;
 }
 
@@ -109,7 +117,7 @@ h2, h3 {
 }
 
 #portfolio li:hover {
-  background: rgb(0, 174, 176);
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgCAMAAAC8EZcfAAAAFVBMVEV5VTqWbEq5hVxZPSmHh4dsbGx0WEQBhbVwAAABX0lEQVR4nO3aMW7DMBBEUSlycv8jp+M0H+MN3JDBn5Lkrh7VLGD5+lq5IRfk7xXPSu+HawIFChQocHNgkof0hjn3WqEKukjv90AEChQoUODuQBwqKznYzxGrnyMM1goUKFCgwM2BGTTfK3SwD8JU3BDq0msFChQoUOCJQFpLcVjYZniRvIRphUCBAgUK3B2YEKHzn5r+DCSs0LAVKFCgQIF7AmmYUUk+2vSGdPe+21+CQIECBQo8B9gb3hCiZnc6OqlWoECBAgWeA5yW9DUak1NW7yJQoECBAs8BJngQ2vRzPTRO8SUIFChQoMADgdM2WaPLTQkJ/sQnUKBAgQKPAV4QatMfl7+P9avnIn1XoECBAgXuDpyWTKmfpA9HgQIFChS4O5BYyc9KR9OF8zgaYdnt/QQKFChQ4J7AaWva7WuUfk6gQIECBf4X4HQ65sMLnaOKNxi6iECBAgUK3Bv4C9QPb7nPrMNBAAAAAElFTkSuQmCC);
 }
 
 #portfolio a {
