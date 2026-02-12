@@ -4,7 +4,7 @@ const gravity = 0.5; // how much is subtracted from speedY each frame
 const friction = 1.5; // how much the player is slowed each frame
 const maxSpeed = 8; // maximum horizontal speed, not vertical
 const playerJumpStrength = 12; // this is subtracted from the speedY each jump
-const projectileSpeed = 8; // the speed of projectiles
+const projectileSpeed = 7; // the speed of projectiles
 let shouldDrawGrid = false;
 let gridMade = false;
 
@@ -18,8 +18,8 @@ const playerScale = 0.8; //makes the player just a bit smaller. Doesn't affect t
 
 // Player variables
 const player = {
-  x: 50,
-  y: 100,
+  x: 0,
+  y: 600,
   speedX: 0,
   speedY: 0,
   width: undefined,
@@ -75,6 +75,8 @@ let offsetY = 0;
 let platforms = [];
 let fakePlatforms = [];
 let badPlatforms = [];
+let jumpPads = [];
+let spikes = [];
 let cannons = [];
 const cannonWidth = 118;
 const cannonHeight = 80;

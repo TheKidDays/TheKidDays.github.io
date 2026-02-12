@@ -27,7 +27,11 @@ function main() {
   drawPlatforms();
   drawFakePlatforms();
   drawBadPlatforms();
+  drawJumpPads();
+  drawSpikes();
   drawProjectiles();
+  updateAndDrawPlayerExplosions();
+  updateAndDrawScreenLights();
   drawCannons();
   drawCollectables();
   playerFrictionAndGravity();
@@ -39,6 +43,8 @@ function main() {
   keyboardControlActions(); //keyboard controls.
   projectileCollision(); //checks if the player is getting hit by a projectile in the next frame
   badPlatformCollision(); //checks if the player is touching a bad platform
+  jumpPadCollision(); //checks if the player is touching a jump pad
+  spikeCollision(); //checks if the player is touching a spike
   collectablesCollide(); //checks if player has touched a collectable
 
   animate(); //this changes halle's picture to the next frame so it looks animated.
@@ -85,6 +91,130 @@ function JsonFunction(status, response) {
       }
     */
   animationDetails = response;
+}
+
+// Small explosion centered on the player when they die
+let playerExplosions = [];
+let playerExplosionTimers = []; // {x,y,count,delay}
+let screenLightTimers = []; // {x,y,delay,duration}
+let screenLights = []; // active lights {x,y,life,maxLife,maxRadius}
+
+function createPlayerExplosion(x, y, count = 10000, spreadRange = 300) {
+  const colors = ['#ffb84d', '#ffd24d', '#ff5f2e', '#ffffff'];
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    // much larger spawn spread
+    const spread = Math.random() * spreadRange + 20;
+    const px = x + Math.cos(angle) * spread;
+    const py = y + Math.sin(angle) * spread;
+    // increase base speed so particles reach farther
+    const speed = Math.random() * 10 + 4;
+    const vx = Math.cos(angle) * speed * (0.6 + Math.random() * 1.4);
+    const vy = Math.sin(angle) * speed * (0.6 + Math.random() * 1.4) - 0.8;
+    playerExplosions.push({
+      x: px,
+      y: py,
+      vx: vx,
+      vy: vy,
+      life: 80 + Math.random() * 120,
+      maxLife: 0,
+      radius: 6 + Math.random() * 18,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+  for (let p of playerExplosions) if (!p.maxLife) p.maxLife = p.life;
+}
+
+function schedulePlayerExplosion(x, y, count = 10000, delayFrames = 60) {
+  playerExplosionTimers.push({ x: x, y: y, count: count, delay: delayFrames });
+  // schedule a screen-covering orange light to start after the player explosion
+  // start slightly after the explosion finishes (delay + 60 frames)
+  scheduleScreenLight(x, y, delayFrames + 60, 720);
+}
+
+function scheduleScreenLight(x, y, delay = 120, duration = 720) {
+  screenLightTimers.push({ x: x, y: y, delay: delay, duration: duration });
+}
+
+function updateAndDrawPlayerExplosions() {
+  // process timers (delayed explosions)
+  if (playerExplosionTimers && playerExplosionTimers.length > 0) {
+    for (let i = playerExplosionTimers.length - 1; i >= 0; i--) {
+      const t = playerExplosionTimers[i];
+      t.delay -= 1;
+      if (t.delay <= 0) {
+        createPlayerExplosion(t.x, t.y, t.count);
+        playerExplosionTimers.splice(i, 1);
+      }
+    }
+  }
+
+  if (!playerExplosions || playerExplosions.length === 0) return;
+  for (let i = playerExplosions.length - 1; i >= 0; i--) {
+    const p = playerExplosions[i];
+    p.vy += 0.4; // gravity
+    p.vx *= 0.99;
+    p.vy *= 0.99;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 1;
+    const alpha = Math.max(0, p.life / p.maxLife);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    if (p.life <= 0) playerExplosions.splice(i, 1);
+  }
+}
+
+function updateAndDrawScreenLights() {
+  // process timers
+  if (screenLightTimers && screenLightTimers.length > 0) {
+    for (let i = screenLightTimers.length - 1; i >= 0; i--) {
+      const t = screenLightTimers[i];
+      t.delay -= 1;
+      if (t.delay <= 0) {
+        // activate a screen light
+        // make max radius much larger than the diagonal so it can overspill the screen
+        const maxR = Math.hypot(canvas.width, canvas.height) * 2.2;
+        screenLights.push({ x: t.x || canvas.width / 2, y: t.y || canvas.height / 2, life: t.duration, maxLife: t.duration, maxRadius: maxR });
+        screenLightTimers.splice(i, 1);
+      }
+    }
+  }
+
+  if (!screenLights || screenLights.length === 0) return;
+  for (let i = screenLights.length - 1; i >= 0; i--) {
+    const s = screenLights[i];
+    const t = 1 - s.life / s.maxLife; // 0 -> 1
+    // radius grows from 0 to maxRadius slowly
+    // make growth and intensity stronger
+    const radius = s.maxRadius * Math.min(1, t * 1.6);
+    const alpha = Math.max(0, Math.min(1.6, 1.8 * t));
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    // very intense radial orange/white gradient
+    const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, radius);
+    g.addColorStop(0, `rgba(255,255,240,${Math.min(1, alpha)})`);
+    g.addColorStop(0.35, `rgba(255,220,120,${Math.min(1, alpha * 0.95)})`);
+    g.addColorStop(0.7, `rgba(255,150,60,${Math.min(0.95, alpha * 0.75)})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    // add a stronger full-screen orange overlay to make the effect more solid
+    const overlayAlpha = Math.min(11.98, alpha * 11.95);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgba(255,140,30,${overlayAlpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+    s.life -= 1;
+    if (s.life <= 0) screenLights.splice(i, 1);
+  }
 }
 
 ///////////////////////////////////////////////
@@ -233,7 +363,7 @@ function drawRobot() {
       player.x - hitDx,
       player.y - hitDy,
       player.width,
-      player.height
+      player.height,
     );
   } else {
     //for running to the left you mirror the image
@@ -248,7 +378,7 @@ function drawRobot() {
       -player.x - player.width + hitDx,
       player.y - hitDy,
       player.width,
-      player.height
+      player.height,
     );
     ctx.restore(); //put the canvas back to normal
   }
@@ -270,7 +400,7 @@ function collision() {
         platforms[i].x,
         platforms[i].y,
         platforms[i].width,
-        platforms[i].height
+        platforms[i].height,
       );
     }
   }
@@ -366,6 +496,8 @@ function projectileCollision() {
     ) {
       currentAnimationType = animationTypes.frontDeath;
       frameIndex = 0;
+      // small explosion at player's position
+      schedulePlayerExplosion(player.x + hitBoxWidth / 2, player.y + hitBoxHeight / 2, 10000, 60);
     }
   }
 }
@@ -383,6 +515,42 @@ function badPlatformCollision() {
     ) {
       currentAnimationType = animationTypes.frontDeath;
       frameIndex = 0;
+      // small explosion at player's position
+      schedulePlayerExplosion(player.x + hitBoxWidth / 2, player.y + hitBoxHeight / 2, 10000, 60);
+    }
+  }
+}
+
+function jumpPadCollision() {
+  for (var i = 0; i < jumpPads.length; i++) {
+    if (
+      player.x + hitBoxWidth > jumpPads[i].x &&
+      player.x < jumpPads[i].x + jumpPads[i].width &&
+      player.y < jumpPads[i].y + jumpPads[i].height &&
+      player.y + hitBoxHeight > jumpPads[i].y
+    ) {
+      // Apply a strong upward velocity (jump boost)
+      player.speedY = -jumpPads[i].boostStrength;
+      player.onGround = false;
+    }
+  }
+}
+
+function spikeCollision() {
+  if (currentAnimationType === animationTypes.frontDeath) {
+    return;
+  }
+  for (var i = 0; i < spikes.length; i++) {
+    if (
+      player.x + hitBoxWidth > spikes[i].x &&
+      player.x < spikes[i].x + spikes[i].width &&
+      player.y < spikes[i].y + spikes[i].height &&
+      player.y + hitBoxHeight > spikes[i].y
+    ) {
+      currentAnimationType = animationTypes.frontDeath;
+      frameIndex = 0;
+      // small explosion at player's position
+      schedulePlayerExplosion(player.x + hitBoxWidth / 2, player.y + hitBoxHeight / 2, 10000, 60);
     }
   }
 }
@@ -393,7 +561,7 @@ function deathOfPlayer() {
     canvas.width / 4,
     canvas.height / 6,
     canvas.width / 2,
-    canvas.height / 2
+    canvas.height / 2,
   );
   ctx.fillStyle = "black";
   ctx.font = "800% serif";
@@ -401,14 +569,14 @@ function deathOfPlayer() {
     "You are dead",
     canvas.width / 4,
     canvas.height / 6 + canvas.height / 5,
-    (canvas.width / 16) * 14
+    (canvas.width / 16) * 14,
   );
   ctx.font = "500% serif";
   ctx.fillText(
     "Hit any key to restart",
     canvas.width / 4,
     canvas.height / 6 + canvas.height / 3,
-    (canvas.width / 16) * 14
+    (canvas.width / 16) * 14,
   );
   if (keyPress.any) {
     keyPress.any = false;
@@ -493,6 +661,89 @@ function drawBadPlatforms() {
   }
 }
 
+function drawJumpPads() {
+  for (var i = 0; i < jumpPads.length; i++) {
+    const { color, x, y, width, height } = jumpPads[i];
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+
+    // Draw decorative lines to make jump pads stand out
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + 10, y + height / 2);
+    ctx.lineTo(x + width - 10, y + height / 2);
+    ctx.stroke();
+  }
+}
+
+function drawSpikes() {
+  for (var i = 0; i < spikes.length; i++) {
+    const { color, x, y, width, height, direction } = spikes[i];
+
+    // Draw spike base
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+
+    // Draw spike points (triangles)
+    ctx.fillStyle = color;
+
+    if (direction === "left") {
+      // Points facing left
+      const spikeCount = Math.floor(height / 20);
+      const spikeHeight = height / spikeCount;
+
+      for (let j = 0; j < spikeCount; j++) {
+        const spikeY = y + j * spikeHeight;
+        ctx.beginPath();
+        ctx.moveTo(x, spikeY);
+        ctx.lineTo(x - width / 2, spikeY + spikeHeight / 2);
+        ctx.lineTo(x, spikeY + spikeHeight);
+        ctx.fill();
+      }
+    } else if (direction === "right") {
+      // Points facing right
+      const spikeCount = Math.floor(height / 20);
+      const spikeHeight = height / spikeCount;
+
+      for (let j = 0; j < spikeCount; j++) {
+        const spikeY = y + j * spikeHeight;
+        ctx.beginPath();
+        ctx.moveTo(x + width, spikeY);
+        ctx.lineTo(x + width + width / 2, spikeY + spikeHeight / 2);
+        ctx.lineTo(x + width, spikeY + spikeHeight);
+        ctx.fill();
+      }
+    } else if (direction === "down") {
+      // Points facing down
+      const spikeCount = Math.floor(width / 20);
+      const spikeWidth = width / spikeCount;
+
+      for (let j = 0; j < spikeCount; j++) {
+        const spikeX = x + j * spikeWidth;
+        ctx.beginPath();
+        ctx.moveTo(spikeX, y + height);
+        ctx.lineTo(spikeX + spikeWidth / 2, y + height + height / 2);
+        ctx.lineTo(spikeX + spikeWidth, y + height);
+        ctx.fill();
+      }
+    } else {
+      // Points facing up (default)
+      const spikeCount = Math.floor(width / 20);
+      const spikeWidth = width / spikeCount;
+
+      for (let j = 0; j < spikeCount; j++) {
+        const spikeX = x + j * spikeWidth;
+        ctx.beginPath();
+        ctx.moveTo(spikeX, y);
+        ctx.lineTo(spikeX + spikeWidth / 2, y - height / 2);
+        ctx.lineTo(spikeX + spikeWidth, y);
+        ctx.fill();
+      }
+    }
+  }
+}
+
 function toggleGrid() {
   shouldDrawGrid = true;
 }
@@ -509,7 +760,7 @@ function makeGrid() {
     ctx.fillText(
       i, // text
       i - 15, // x location
-      25 // y location
+      25, // y location
     );
   }
 
@@ -523,7 +774,7 @@ function makeGrid() {
     ctx.fillText(
       i, // text
       10, // x location
-      i + 5 // y location
+      i + 5, // y location
     );
   }
   gridMade = true;
@@ -536,7 +787,7 @@ function drawProjectiles() {
       projectiles[i].x,
       projectiles[i].y,
       projectiles[i].width,
-      projectiles[i].height
+      projectiles[i].height,
     );
     projectiles[i].x = projectiles[i].x + projectiles[i].speedX;
     projectiles[i].y = projectiles[i].y + projectiles[i].speedY;
@@ -552,7 +803,7 @@ function drawCannons() {
         cannons[i].x,
         cannons[i].y,
         cannons[i].projectileWidth,
-        cannons[i].projectileHeight
+        cannons[i].projectileHeight,
       );
     } else {
       cannons[i].projectileCountdown = cannons[i].projectileCountdown + 1;
@@ -593,7 +844,7 @@ function drawCollectables() {
         collectables[i].x,
         collectables[i].y,
         collectableWidth,
-        collectableHeight
+        collectableHeight,
       );
     } else {
       //draw the icons at the top if collected
@@ -606,7 +857,7 @@ function drawCollectables() {
         200 + 100 * i,
         10,
         collectableWidth,
-        collectableHeight
+        collectableHeight,
       );
       ctx.globalAlpha = 1;
     }
@@ -679,7 +930,7 @@ function winGame() {
     canvas.width / 4,
     canvas.height / 6,
     canvas.width / 2,
-    canvas.height / 2
+    canvas.height / 2,
   );
   ctx.fillStyle = "white";
   ctx.font = "800% serif";
@@ -687,14 +938,14 @@ function winGame() {
     "You Win!",
     canvas.width / 4,
     canvas.height / 6 + canvas.height / 5,
-    (canvas.width / 16) * 14
+    (canvas.width / 16) * 14,
   );
   ctx.font = "500% serif";
   ctx.fillText(
     "Hit any key to restart",
     canvas.width / 4,
     canvas.height / 6 + canvas.height / 3,
-    (canvas.width / 16) * 14
+    (canvas.width / 16) * 14,
   );
   if (keyPress.any) {
     keyPress.any = false;
@@ -713,7 +964,7 @@ function createPlatform(
   speedX = 1,
   minY = null,
   maxY = null,
-  speedY = 1
+  speedY = 1,
 ) {
   platforms.push({
     x,
@@ -752,6 +1003,35 @@ function createBadPlatform(x, y, width, height, color = "red") {
   });
 }
 
+function createJumpPad(
+  x,
+  y,
+  width,
+  height,
+  boostStrength = 25,
+  color = "yellow",
+) {
+  jumpPads.push({
+    x,
+    y,
+    width,
+    height,
+    boostStrength,
+    color,
+  });
+}
+
+function createSpike(x, y, width, height, color = "red", direction = "up") {
+  spikes.push({
+    x,
+    y,
+    width,
+    height,
+    color,
+    direction,
+  });
+}
+
 function createCannon(
   wallLocation,
   position,
@@ -760,7 +1040,7 @@ function createCannon(
   height = defaultProjectileHeight,
   minPos = null,
   maxPos = null,
-  speed = 1
+  speed = 1,
 ) {
   if (wallLocation === "top") {
     cannons.push({
@@ -841,7 +1121,7 @@ function createCollectable(
   bounce = 1,
   minX = null,
   maxX = null,
-  speed = 1
+  speed = 1,
 ) {
   if (type !== "") {
     var image = document.createElement("img");
