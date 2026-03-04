@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tactical Dice - Smart Targeting</title>
+    <title>RougeRoll</title>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --hero-top: #ffd700; --hero-bottom: #2ecc71; --enemy: #ff4d4d; --gold: #ffd700; --hp-green: #2ecc71; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; overflow: hidden; min-height: 100vh; }
@@ -108,8 +108,8 @@
         ];
 
         let state = {
-            heroes: [{ hp: 20, maxHp: 20, armor: 0 }, { hp: 20, maxHp: 20, armor: 0 }],
-            enemyHP: 20, maxEnemyHP: 20, enemyAtk: 5, enemyTargetIdx: 0,
+            heroes: [{ hp: 15, maxHp: 20, armor: 0 }, { hp: 15, maxHp: 20, armor: 0 }],
+            enemyHP: 20, maxEnemyHP: 25, enemyAtk: 5, enemyTargetIdx: 0,
             rolls: 3, turnDone: false,
             dice: [
                 { side: null, locked: false, owner: 0, target: null },
