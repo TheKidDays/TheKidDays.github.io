@@ -98,8 +98,7 @@ main {
   text-align: center;
 }
 
-h2,
-h3 {
+h2,h3 {
   margin: 0px;
 }
 
@@ -140,4 +139,16 @@ h3 {
 
 #my-stuff {
   margin-left: 20px;
+}
+
+/*secret button :)*/
+#secret {
+  position: absolute;
+  left: 94%;
+  top: 97%;
+  background: rgb(40, 40, 40);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px ridge black;
+  font-size: x-small;
 }
