@@ -81,8 +81,10 @@ body, html {
 }
 
 .grid-item {
-    background-color: #555555;
-    border: 0.1px solid #555555;
+    background-color: black;
+    border: 0.1px solid black;
+    box-shadow: 0 0 5px 5px darkcyan inset;
+    box-shadow: 0 0 5px 5px darkcyan;
     transition: transform 0.15s ease-out, opacity 0.15s ease-out;
     transform-origin: center; 
     /* Performance boost for animations */
