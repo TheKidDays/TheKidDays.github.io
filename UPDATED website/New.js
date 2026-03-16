@@ -5,53 +5,57 @@ window.addEventListener("mousemove", (e) => {
 });
 
 const container = document.getElementById('grid-container');
-const cellSize = 50; 
+const cellSize = 50;
+let boxes = []; // We'll store the box elements here for faster access
 
 function createGrid() {
     container.innerHTML = '';
     const columns = Math.ceil(window.innerWidth / cellSize);
     const rows = Math.ceil(window.innerHeight / cellSize);
-    
+
     for (let i = 0; i < columns * rows; i++) {
         const cell = document.createElement('div');
         cell.classList.add('grid-item');
         container.appendChild(cell);
     }
+    
+    // Cache the boxes after they are created
+    boxes = document.querySelectorAll('.grid-item');
 }
 
 window.addEventListener("mousemove", (e) => {
-    const boxes = document.querySelectorAll('.grid-item');
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-
-    // Your refined "hole" size
-    const maxDist = 175; 
+    const maxDist = 276;
 
     boxes.forEach((box) => {
         const rect = box.getBoundingClientRect();
+        // Calculate the center point of the box
         const boxX = rect.left + rect.width / 2;
         const boxY = rect.top + rect.height / 2;
 
+        // Corrected Pythagorean theorem: distance = sqrt(dx^2 + dy^2)
         const distance = Math.sqrt(
             Math.pow(mouseX - boxX, 2) + Math.pow(mouseY - boxY, 2)
         );
 
         if (distance < maxDist) {
-            // Power of 2 creates the smooth "funnel" look
+            // Creates the "pinch" or "hole" effect
             let scale = Math.pow(distance / maxDist, 2);
             
-            // Keeps them from vanishing entirely
-            if (scale < 0.05) scale = 0.05; 
+            // Floor the scale so boxes don't disappear completely
+            if (scale < 0.1) scale = 0.1;
 
             box.style.transform = `scale(${scale})`;
-            box.style.opacity = scale; 
+            box.style.opacity = scale;
         } else {
+            // Reset to normal state when mouse is far away
             box.style.transform = `scale(1)`;
             box.style.opacity = 1;
         }
     });
 });
 
-// Build grid on load and rebuild on window resize
+// Initialize and handle window resizing
 createGrid();
 window.addEventListener('resize', createGrid);
