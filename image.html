@@ -3,18 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Images</title>
+    <title>Rainbow Image Gallery</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #000000, #00008B);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh; 
+            margin: 0;
+            padding: 0; /* Changed to 0 so Nav spans full width */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.8s ease-in-out;
+        }
+
+        /* --- Navigation Bar --- */
+        nav {
+            background-color: rgba(0, 0, 0, 0.7); /* Transparent black */
+            padding: 15px 0;
+            text-align: center;
+            position: sticky; /* Stays at the top when you scroll */
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #00d4ff; /* Glow color on hover */
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); 
+            z-index: -1;
+        }
+
+        /* --- Grid Layout --- */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px; 
+            margin: 40px auto; /* Margin top to separate from Nav */
+            padding: 20px;
+        }
+
+        .image-gallery img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            
+            /* The 7px Black Border you asked for */
+            border: 7px solid #000000;
+            box-sizing: border-box; /* Ensures the border doesn't make the image overflow */
+            
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .image-gallery img:hover {
+            transform: scale(1.02);
+            border-color: #ffffff; /* Border turns white on hover */
+        }
+
+        /* --- Fullscreen Overlay --- */
+        #img-overlay {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #full-img {
+            max-width: 90%;
+            max-height: 80%;
+            border: 5px solid white;
+        }
+
+        #close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <img id="Img1" src="">
-    <img id="Img2" src="">
-    <img id="Img3" src="">
-    <img id="Img4" src="">
-    <img id="Img5" src="">
-    <img id="Img6" src="">
-    <img id="Img7" src="">
-    <img id="Img8" src="">
-    <img id="Img9" src="">
-    <img id="Img10" src="">
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">My Stuff</a>
+    </nav>
+
+    <div id="img-overlay">
+        <span id="close-btn">&times;</span>
+        <img id="full-img" src="" alt="Full view">
+    </div>
+
+    <div class="image-gallery">
+        <img id="Img1" src="assets/IMG_5862.JPG" alt="Image 1" onclick="openFull(this.src)">
+        <img id="Img2" src="assets/IMG_5863.JPG" alt="Image 2" onclick="openFull(this.src)">
+        <img id="Img3" src="assets/IMG_5864.JPG" alt="Image 3" onclick="openFull(this.src)">
+        <img id="Img4" src="assets/IMG_5865.JPG" alt="Image 4" onclick="openFull(this.src)">
+        <img id="Img5" src="assets/IMG_5866.JPG" alt="Image 5" onclick="openFull(this.src)">
+        <img id="Img6" src="assets/IMG_5867.JPG" alt="Image 6" onclick="openFull(this.src)">
+        <img id="Img7" src="assets/IMG_5868.JPG" alt="Image 7" onclick="openFull(this.src)">
+        <img id="Img8" src="assets/IMG_5869.JPG" alt="Image 8" onclick="openFull(this.src)">
+        <img id="Img9" src="assets/IMG_5870.JPG" alt="Image 9" onclick="openFull(this.src)">
+        <img id="Img10" src="assets/IMG_5871.JPG" alt="Image 10" onclick="openFull(this.src)">
+        <img id="Img11" src="assets/IMG_5872.JPG" alt="Image 11" onclick="openFull(this.src)">
+        <img id="Img12" src="assets/IMG_5873.JPG" alt="Image 12" onclick="openFull(this.src)">
+        <img id="Img13" src="assets/IMG_5876.JPG" alt="Image 13" onclick="openFull(this.src)">
+        <img id="Img14" src="assets/IMG_5877.JPG" alt="Image 14" onclick="openFull(this.src)">
+        <img id="Img15" src="assets/IMG_5879.JPG" alt="Image 15" onclick="openFull(this.src)">
+        <img id="Img16" src="assets/IMG_5881.JPG" alt="Image 16" onclick="openFull(this.src)">
+        <img id="Img17" src="assets/IMG_5882.JPG" alt="Image 17" onclick="openFull(this.src)">
+        <img id="Img18" src="assets/IMG_5883.JPG" alt="Image 18" onclick="openFull(this.src)">
+        <img id="Img19" src="assets/IMG_5887.JPG" alt="Image 19" onclick="openFull(this.src)">
+        <img id="Img20" src="assets/IMG_5889.JPG" alt="Image 20" onclick="openFull(this.src)">
+        <img id="Img21" src="assets/IMG_5890.JPG" alt="Image 21" onclick="openFull(this.src)">
+        <img id="Img22" src="assets/IMG_5892.JPG" alt="Image 22" onclick="openFull(this.src)">
+        <img id="Img23" src="assets/IMG_5894.JPG" alt="Image 23" onclick="openFull(this.src)">
+        <img id="Img24" src="assets/IMG_5895.JPG" alt="Image 24" onclick="openFull(this.src)">
+        <img id="Img25" src="assets/IMG_5898.JPG" alt="Image 25" onclick="openFull(this.src)">
+        <img id="Img26" src="assets/IMG_5901.JPG" alt="Image 26" onclick="openFull(this.src)">
+        <img id="Img27" src="assets/IMG_5902.JPG" alt="Image 27" onclick="openFull(this.src)">
+        <img id="Img28" src="assets/IMG_5911.JPG" alt="Image 28" onclick="openFull(this.src)">
+        <img id="Img29" src="assets/IMG_5913.JPG" alt="Image 29" onclick="openFull(this.src)">
+        <img id="Img30" src="assets/IMG_5915.JPG" alt="Image 30" onclick="openFull(this.src)">
+        <img id="Img31" src="assets/IMG_5916.JPG" alt="Image 31" onclick="openFull(this.src)">
+        <img id="Img32" src="assets/IMG_5918.JPG" alt="Image 32" onclick="openFull(this.src)">
+        <img id="Img33" src="assets/IMG_5919.JPG" alt="Image 33" onclick="openFull(this.src)">
+    </div>
+
+    <script>
+        const overlay = document.getElementById('img-overlay');
+        const fullImg = document.getElementById('full-img');
+        const closeBtn = document.getElementById('close-btn');
+
+        const rainbowGradients = [
+            "linear-gradient(to bottom, #000000, #ff0000)", 
+            "linear-gradient(to bottom, #000000, #ff7f00)", 
+            "linear-gradient(to bottom, #000000, #ffff00)", 
+            "linear-gradient(to bottom, #000000, #00ff00)", 
+            "linear-gradient(to bottom, #000000, #0000ff)", 
+            "linear-gradient(to bottom, #000000, #4b0082)", 
+            "linear-gradient(to bottom, #000000, #9400d3)"  
+        ];
+        
+        let currentColorIndex = 4;
+
+        function openFull(source) {
+            overlay.style.display = "flex";
+            fullImg.src = source;
+            document.body.style.background = "url('" + source + "') no-repeat center center / cover fixed";
+        }
+
+        closeBtn.onclick = function() { overlay.style.display = "none"; }
+        overlay.onclick = function(event) { if (event.target !== fullImg) overlay.style.display = "none"; }
+
+        window.addEventListener('keydown', function(event) {
+            if (event.key.toLowerCase() === "w") {
+                currentColorIndex = (currentColorIndex + 1) % rainbowGradients.length;
+                document.body.style.background = rainbowGradients[currentColorIndex] + " no-repeat center center / cover fixed";
+            }
+
+            if (event.code === "Space") {
+                event.preventDefault(); 
+                currentColorIndex = 4;
+                document.body.style.background = "linear-gradient(to bottom, #000000, #00008B) no-repeat center center / cover fixed";
+            }
+            
+            if (event.key === "Escape") {
+                overlay.style.display = "none";
+            }
+        });
+    </script>
+
 </body>
 </html>
