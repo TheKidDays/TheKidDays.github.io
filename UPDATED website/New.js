@@ -26,7 +26,7 @@ function createGrid() {
 window.addEventListener("mousemove", (e) => {
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-    const maxDist = 276;
+    const maxDist = 200;
 
     boxes.forEach((box) => {
         const rect = box.getBoundingClientRect();

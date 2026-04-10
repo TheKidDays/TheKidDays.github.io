@@ -1,21 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>New and Improved</title>
-        <link rel="stylesheet" href="New.css" />
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div class="header-wrapper">
-            <div id="box"></div> 
-            <div id="box1" class="shape"></div>
-            <div id="box3" class="shape rotate"></div>
-            <div id="box2" class="shape"></div>
-            <div id="box4" class="shape rotate"></div>
-        <div class="header-wrapper"></div>
-        <div id="grid-container"></div>
-        <div id="grid-container" style="display: none;"></div>
-        <script src="New.js"></script>
-    </body>
+<head>
+    <title>New and Improved</title>
+    <link rel="stylesheet" href="New.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="header-wrapper">
+        <div id="box"></div> 
+        <div id="box1" class="shape"></div>
+        <div id="box3" class="shape rotate"></div>
+        <div id="box2" class="shape"></div>
+        <div id="box4" class="shape rotate"></div>
+    </div>
+
+    <div id="bottom-bar"></div>
+    <div id="box5" class="bottom-rotate"></div>
+    <div id="box6" class="bottom-rotate"></div>
+
+    <div id="grid-container"></div>
+
+    <button id="nav-menu-btn">Nav Menu</button>
+
+    <div id="nav-overlay" class="hidden">
+        <div id="nav-content">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Projects</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <button id="close-menu">Close</button>
+        </div>
+    </div>
+
+    <script src="New.js"></script>
+</body>
 </html>
